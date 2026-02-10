@@ -24,64 +24,59 @@
 
 # CMD ["bash","start.sh"]
 
+
+
 FROM ubuntu:20.04
 
-# 🔴 IMPORTANT: disable interactive prompts
+# ===== Basic non-interactive setup =====
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-WORKDIR /usr/src/app
-RUN chmod 777 /usr/src/app
+# ===== CRITICAL: remove Ubuntu telegram package =====
+RUN apt-get update && apt-get remove -y python3-telegram || true
 
-# Install system packages (tzdata handled safely)
-RUN apt-get -qq update && apt-get -qq install -y \
+# ===== Install system dependencies =====
+RUN apt-get update && apt-get install -y \
     tzdata \
-    git \
     python3 \
     python3-pip \
-    locales \
     python3-lxml \
     aria2 \
     curl \
     pv \
     jq \
-    nginx \
-    npm \
+    git \
+    locales \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
-    && dpkg-reconfigure -f noninteractive tzdata
+    && dpkg-reconfigure -f noninteractive tzdata \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# ===== Set working directory =====
+WORKDIR /usr/src/app
+
+# ===== Copy & install Python dependencies =====
 COPY requirements.txt .
-# RUN pip3 uninstall -y telegram || true \
-#     && pip3 install --upgrade pip setuptools wheel \
-#     && pip3 install --no-cache-dir -r requirements.txt \
-#     && python3 -c "import telegram; from telegram import ParseMode; print('OK ParseMode:', ParseMode.HTML)" \
-#     && apt-get -qq purge git \
-#     && apt-get -qq autoremove -y \
-#     && apt-get -qq clean
-RUN pip3 uninstall -y telegram python-telegram-bot || true \
-    && pip3 install --upgrade pip setuptools wheel \
+
+RUN pip3 install --upgrade pip setuptools wheel \
     && pip3 install --no-cache-dir -r requirements.txt \
     && python3 - << 'EOF'
 import telegram
-from telegram.parsemode import ParseMode
+from telegram import ParseMode
 print("ParseMode OK:", ParseMode.HTML)
 EOF
 
-
-
-
-# Locale setup
+# ===== Locale setup =====
 RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-# Copy application
+# ===== Copy application source =====
 COPY . .
 
-RUN chmod +x start.sh
-RUN chmod +x gclone
+RUN chmod +x start.sh gclone
 
+# ===== Run bot (Worker mode) =====
 CMD ["bash", "start.sh"]
