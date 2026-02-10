@@ -53,16 +53,13 @@ RUN apt-get -qq update && apt-get -qq install -y \
 
 # Install Python dependencies
 COPY requirements.txt .
-# RUN pip3 install --no-cache-dir -r requirements.txt \
-#     && apt-get -qq purge git \
-#     && apt-get -qq autoremove -y \
-#     && apt-get -qq clean
 RUN pip3 uninstall -y telegram || true \
+    && pip3 install --upgrade pip setuptools wheel \
     && pip3 install --no-cache-dir -r requirements.txt \
+    && python3 -c "import telegram; from telegram import ParseMode; print('OK ParseMode:', ParseMode.HTML)" \
     && apt-get -qq purge git \
     && apt-get -qq autoremove -y \
     && apt-get -qq clean
-
 
 
 
