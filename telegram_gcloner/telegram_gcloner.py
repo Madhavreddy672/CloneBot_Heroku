@@ -12,7 +12,7 @@ from importlib import import_module
 from logging import handlers
 from pathlib import Path
 
-from telegram import ParseMode
+from telegram.parsemode import ParseMode
 from telegram.ext import Updater, Dispatcher
 
 import telegram.bot
