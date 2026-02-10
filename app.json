@@ -1,9 +1,9 @@
 {
-	"name": "CloneBot",
-	"description": "CloneBot",
-	"repository": "https://github.com/aishik2005/CloneBot",
+	"name": "Inboxtales",
+	"description": "inboxtales",
+	"repository": "https://inboxtales.com",
 	"keywords": ["Gclone","TG"],
-	"repository": "https://github.com/aishik2005/CloneBot",
+	"repository": "https://inboxtales.com",
         "website": "https://t.me/msgsuitechat",
         "success_url": "https://github.com/aishik2005/CloneBot/blob/master/README.md",
 	"env": {
